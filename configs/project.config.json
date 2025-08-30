@@ -1,0 +1,68 @@
+{
+  "projectDefaults": {
+    "author": "Raphaël GEOFFROY",
+    "email": "geo92fr@gmail.com",
+    "description": "Application personnelle de gestion",
+    "version": "1.0.0",
+    "license": "MIT",
+    "repository": {
+      "type": "git",
+      "url": ""
+    }
+  },
+  "templates": {
+    "default": "svelte-firebase-instant",
+    "available": [
+      "svelte-firebase-instant",
+      "admin-stack",
+      "commerce-stack",
+      "content-stack",
+      "mobile-stack"
+    ]
+  },
+  "customization": {
+    "autoGitInit": true,
+    "autoNpmInstall": false,
+    "createReadme": true,
+    "replaceTokens": true,
+    "tokens": {
+      "{{PROJECT_NAME}}": "project-name",
+      "{{AUTHOR}}": "author",
+      "{{EMAIL}}": "email",
+      "{{DESCRIPTION}}": "description",
+      "{{YEAR}}": "current-year"
+    }
+  },
+  "hooks": {
+    "beforeCreate": [],
+    "afterCreate": [
+      "git init",
+      "git add .",
+      "git commit -m \"Initial commit from MyDevFramework\""
+    ],
+    "afterInstall": [],
+    "setupHooks": true
+  },
+  "validation": {
+    "checkProjectNameExists": true,
+    "validateProjectName": true,
+    "allowedChars": "a-zA-Z0-9-_",
+    "minLength": 3,
+    "maxLength": 50,
+    "level": "standard"
+  },
+  "author": {
+    "name": "Raphaël GEOFFROY",
+    "email": "geo92fr@gmail.com"
+  },
+  "git": {
+    "username": "geo92fr",
+    "email": "geo92fr@gmail.com",
+    "autoInit": true,
+    "autoCommit": true
+  },
+  "project": {
+    "defaultDescription": "Application développée par Raphaël GEOFFROY avec MyDevFramework",
+    "license": "MIT"
+  }
+}

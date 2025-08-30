@@ -1,38 +1,79 @@
-# 🧰 MyDevFramework - Ressources Projets
+# MyDevFramework v1.3.0 - Mode Externe Uniquement
 
-> Framework léger copié automatiquement dans vos projets par MyDevFramework
+Framework personnel optimisé pour la **création de projets externes uniquement** avec Git indépendant.
 
-## 🎯 Contenu
+## 🎯 Philosophie
 
-Cette version allégée du framework contient uniquement les ressources utiles à vos projets :
-
-### 📦 **Snippets** (`snippets/`)
-- Composants Svelte réutilisables
-- Utilitaires JavaScript génériques  
-- Patterns d'authentification Firebase
-- Composants UI (Modal, etc.)
-
-### 🔍 **Validateurs** (`core/quality/`)
-- Scripts de validation de structure
-- Vérificateurs d'environnement
-- Outils de qualité code
-
-### 📚 **Documentation** (`docs/`)
-- Guide des bonnes pratiques
-- Documentation de couverture
-- Logs et post-mortem
+- ✅ **Projets externes uniquement** - Chaque projet a son propre Git
+- ✅ **Framework propre** - Dédié aux outils et templates  
+- ✅ **Isolation complète** - Aucun mélange framework/projets
+- ✅ **Simplicité** - Un seul mode, une seule façon de faire
 
 ## 🚀 Utilisation
 
-Ces ressources sont automatiquement disponibles dans votre projet. Utilisez-les comme référence ou copiez les snippets selon vos besoins.
+### Méthodes de Création
 
-## ⚡ Différence avec le Framework Principal
+```bash
+# 1. CLI (recommandé)
+fw create mon-projet
 
-- ❌ **Pas d'outils de création** (cli/, tools/create-*)
-- ❌ **Pas de scripts de gestion** (create-*.bat)
-- ❌ **Pas de configuration globale** (project.ini)
-- ✅ **Seulement les ressources utiles aux projets**
+# 2. Script simple
+create-project.bat mon-projet
+
+# 3. Script complet avec configuration
+create-external-only.bat mon-projet
+```
+
+### Structure Créée
+
+```
+C:\MyDevProject\           # Configuré dans project.ini
+├── templates\             # Templates personnalisés
+├── backups\               # Sauvegardes
+├── mon-projet-1\          # Projet avec son Git
+│   ├── .git\              # Git indépendant
+│   └── ...                # Code source
+└── mon-projet-2\          # Autre projet avec son Git
+```
+
+## ⚙️ Configuration
+
+Le fichier `project.ini` configure les chemins :
+
+```ini
+[Mode]
+creation_mode = EXTERNE    # Seul mode disponible
+
+[PathsExterne]
+external_projects_path = C:\MyDevProject
+external_templates_path = C:\MyDevProject\templates
+external_backup_path = C:\MyDevProject\backups
+```
+
+## 📁 Structure du Framework
+
+```
+MyDevFramework/
+├── cli/                   # Interface en ligne de commande
+├── core/                  # Cœur du framework
+├── templates/             # Templates de base
+├── tools/                 # Outils de création
+├── create-project.bat     # Script principal
+├── create-external-only.bat # Script complet
+├── project.ini            # Configuration
+└── README.md              # Ce fichier
+```
+
+## 🔗 Contrôle de Version
+
+- **Framework** : Git lié à https://github.com/geo92fr-dev/MyDevFramework
+- **Projets** : Git indépendant pour chaque projet créé
+
+## 📖 Documentation
+
+- `README_EXTERNE_ONLY.md` : Guide détaillé du mode externe
+- `docs/` : Documentation complète du framework
 
 ---
 
-*Généré automatiquement par MyDevFramework v1.3.0*
+**MyDevFramework v1.3.0** - Simplifiez votre workflow de développement avec des projets externes isolés.

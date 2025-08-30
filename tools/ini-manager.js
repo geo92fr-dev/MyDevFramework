@@ -1,0 +1,265 @@
+/**
+ * Gestionnaire de configuration INI pour MyDevFramework
+ * Lit les fichiers project.ini et createproject.ini
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+class IniConfigManager {
+    constructor() {
+        this.iniPath = path.join(__dirname, '..', 'createproject.ini');
+        this.projectIniPath = path.join(__dirname, '..', 'project.ini');
+        this.config = null;
+    }
+
+    /**
+     * Parse un fichier INI simple
+     * @param {string} content - Contenu du fichier INI
+     * @returns {object} Configuration parsée
+     */
+    parseIni(content) {
+        const config = {};
+        let currentSection = null;
+
+        const lines = content.split('\n');
+        
+        for (let line of lines) {
+            line = line.trim();
+            
+            // Ignorer les commentaires et lignes vides
+            if (!line || line.startsWith('#') || line.startsWith(';')) {
+                continue;
+            }
+            
+            // Sections [nom]
+            if (line.startsWith('[') && line.endsWith(']')) {
+                currentSection = line.slice(1, -1);
+                config[currentSection] = {};
+                continue;
+            }
+            
+            // Paires clé=valeur
+            if (line.includes('=') && currentSection) {
+                const [key, ...valueParts] = line.split('=');
+                const value = valueParts.join('=').trim();
+                
+                // Conversion des types
+                let parsedValue = value;
+                if (value.toLowerCase() === 'true') {
+                    parsedValue = true;
+                } else if (value.toLowerCase() === 'false') {
+                    parsedValue = false;
+                } else if (!isNaN(value) && !isNaN(parseFloat(value))) {
+                    parsedValue = parseFloat(value);
+                }
+                
+                config[currentSection][key.trim()] = parsedValue;
+            }
+        }
+        
+        return config;
+    }
+
+    /**
+     * Charge la configuration depuis les fichiers INI
+     * Priorité : project.ini > createproject.ini
+     * @returns {object} Configuration chargée
+     */
+    loadConfig() {
+        try {
+            let config = {};
+            
+            // 1. Charger d'abord createproject.ini (base)
+            if (fs.existsSync(this.iniPath)) {
+                const baseContent = fs.readFileSync(this.iniPath, 'utf8');
+                config = this.parseIni(baseContent);
+            }
+            
+            // 2. Fusionner avec project.ini (prioritaire)
+            if (fs.existsSync(this.projectIniPath)) {
+                const projectContent = fs.readFileSync(this.projectIniPath, 'utf8');
+                const projectConfig = this.parseIni(projectContent);
+                config = this.mergeConfigs(config, projectConfig);
+            }
+            
+            this.config = config;
+            return config;
+        } catch (error) {
+            console.error('Erreur lors du chargement de la configuration:', error.message);
+            return {};
+        }
+    }
+
+    /**
+     * Fusionne deux configurations
+     * @param {object} baseConfig - Configuration de base
+     * @param {object} overrideConfig - Configuration prioritaire
+     * @returns {object} Configuration fusionnée
+     */
+    mergeConfigs(baseConfig, overrideConfig) {
+        const merged = JSON.parse(JSON.stringify(baseConfig)); // Deep copy
+        
+        for (const [section, values] of Object.entries(overrideConfig)) {
+            if (!merged[section]) {
+                merged[section] = {};
+            }
+            merged[section] = { ...merged[section], ...values };
+        }
+        
+        return merged;
+    }
+
+    /**
+     * Obtient le mode de création configuré
+     * @returns {string} 'LOCAL' ou 'EXTERNE'
+     */
+    getCreationMode() {
+        const config = this.loadConfig();
+        return config.Mode?.creation_mode || 'LOCAL';
+    }
+
+    /**
+     * Obtient la configuration adaptée au mode
+     * @param {string} projectName - Nom du projet (optionnel, utilisé pour override)
+     * @returns {object} Configuration adaptée
+     */
+    getProjectConfig(projectName = null) {
+        const config = this.loadConfig();
+        const mode = this.getCreationMode();
+        
+        console.log(`🎯 Mode de création: ${mode}`);
+        
+        if (mode === 'EXTERNE') {
+            // Utiliser la configuration projet spécifique
+            const projectConfig = {
+                name: projectName || config.Project?.name || 'nouveau-projet',
+                description: config.Project?.description || config.Project?.default_description,
+                author: config.Personal?.author_name,
+                email: config.Personal?.author_email,
+                version: config.Project?.version || config.Project?.default_version,
+                license: config.Project?.license,
+                template: config.Template?.template || config.Project?.default_template,
+                git: {
+                    username: config.Git?.git_username,
+                    email: config.Git?.git_email,
+                    repository_url: config.Git?.repository_url?.replace(/\/[^/]*$/, `/${projectName || config.Project?.name}`)
+                }
+            };
+            return projectConfig;
+        } else {
+            // Mode LOCAL - utiliser les paramètres par défaut
+            const localConfig = {
+                name: projectName || 'nouveau-projet',
+                description: config.Project?.default_description,
+                author: config.Personal?.author_name,
+                email: config.Personal?.author_email,
+                version: config.Project?.default_version,
+                license: config.Project?.license,
+                template: config.Project?.default_template,
+                git: {
+                    username: config.Git?.git_username,
+                    email: config.Git?.git_email,
+                    repository_url: `https://github.com/${config.Git?.git_username}/${projectName || 'nouveau-projet'}`
+                }
+            };
+            return localConfig;
+        }
+    }
+
+    /**
+     * Affiche la configuration actuelle
+     */
+    displayConfig() {
+        const config = this.loadConfig();
+        
+        console.log('\n📋 Configuration unifiée (project.ini + createproject.ini):');
+        console.log('='.repeat(60));
+        
+        for (const [section, values] of Object.entries(config)) {
+            console.log(`\n[${section}]`);
+            for (const [key, value] of Object.entries(values)) {
+                console.log(`  ${key} = ${value}`);
+            }
+        }
+    }
+
+    /**
+     * Met à jour le fichier project.config.json
+     */
+    updateProjectConfig(projectConfigPath) {
+        try {
+            const iniConfig = this.loadConfig();
+            
+            if (!fs.existsSync(projectConfigPath)) {
+                console.warn(`Fichier project.config.json non trouvé: ${projectConfigPath}`);
+                return;
+            }
+
+            const projectConfig = JSON.parse(fs.readFileSync(projectConfigPath, 'utf8'));
+
+            // Mise à jour avec les valeurs des INI
+            if (iniConfig.Personal) {
+                projectConfig.author = {
+                    name: iniConfig.Personal.author_name || 'Auteur',
+                    email: iniConfig.Personal.author_email || 'email@example.com'
+                };
+            }
+
+            if (iniConfig.Project) {
+                projectConfig.projectDefaults = {
+                    ...projectConfig.projectDefaults,
+                    author: iniConfig.Personal?.author_name || projectConfig.projectDefaults?.author,
+                    email: iniConfig.Personal?.author_email || projectConfig.projectDefaults?.email,
+                    description: iniConfig.Project.description || iniConfig.Project.default_description || projectConfig.projectDefaults?.description,
+                    license: iniConfig.Project.license || projectConfig.projectDefaults?.license
+                };
+            }
+
+            // Sauvegarde
+            fs.writeFileSync(projectConfigPath, JSON.stringify(projectConfig, null, 2));
+            console.log('✅ Configuration mise à jour avec les valeurs des fichiers INI');
+
+        } catch (error) {
+            console.error('Erreur lors de la mise à jour:', error.message);
+        }
+    }
+
+    /**
+     * Obtient le chemin des projets externes
+     * @returns {string} Chemin des projets externes
+     */
+    getExternalProjectsPath() {
+        const config = this.loadConfig();
+        return config.PathsExterne?.external_projects_path || 'C:\\MyDevProject';
+    }
+
+    /**
+     * Obtient le chemin des templates externes (calculé automatiquement)
+     * @returns {string} Chemin des templates externes
+     */
+    getExternalTemplatesPath() {
+        const basePath = this.getExternalProjectsPath();
+        return path.join(basePath, 'templates');
+    }
+
+    /**
+     * Obtient le chemin des backups externes (calculé automatiquement)
+     * @returns {string} Chemin des backups externes
+     */
+    getExternalBackupPath() {
+        const basePath = this.getExternalProjectsPath();
+        return path.join(basePath, 'backups');
+    }
+
+    /**
+     * Obtient le nom du projet depuis la configuration
+     * @returns {string} Nom du projet configuré
+     */
+    getProjectName() {
+        const config = this.loadConfig();
+        return config.Project?.name || 'nouveau-projet';
+    }
+}
+
+module.exports = IniConfigManager;
