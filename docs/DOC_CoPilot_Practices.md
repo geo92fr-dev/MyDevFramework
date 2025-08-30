@@ -1,4 +1,4 @@
-# 🤖 CBD - Check Before Doing (Version Optimisée)
+# 🤖 CBD - DOC_CoPilot_Practices - Check Before Doing (Version Optimisée)
 
 > **Guide de collaboration optimisée Humain ↔ IA pour FunLearning V1.0**  
 > Version: 2.0 | Date: 30/08/2025

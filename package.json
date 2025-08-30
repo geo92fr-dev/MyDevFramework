@@ -4,7 +4,11 @@
   "description": "Framework personnel évolutif - Phase 3 Automation Complete",
   "author": "Developer",
   "bin": {
-    "fw": "./cli/fw.js"
+    "fw": "./cli/fw.js",
+    "cbd": "./tools/cbd/cbd-orchestrator.js",
+    "cbd-validate": "./tools/cbd/cbd-validator.js",
+    "cbd-roadmap": "./tools/cbd/roadmap-checker.js",
+    "cbd-analytics": "./tools/cbd/cbd-analytics.js"
   },
   "scripts": {
     "dashboard": "node tools/dashboard.js",
@@ -17,7 +21,19 @@
     "hooks:config": "node tools/git-hooks/hooks-manager.js auto-config",
     "hooks:report": "node tools/git-hooks/hooks-manager.js report",
     "phase3:setup": "echo Phase 3 activée - Automation complète",
-    "install-global": "npm install -g ."
+    "install-global": "npm install -g .",
+    "cbd:validate": "node tools/cbd/cbd-validator.js",
+    "cbd:roadmap": "node tools/cbd/roadmap-checker.js",
+    "cbd:orchestrator": "node tools/cbd/cbd-orchestrator.js",
+    "cbd:analytics": "node tools/cbd/cbd-analytics.js",
+    "cbd:template": "node tools/cbd/cbd-validator.js --template",
+    "cbd:report": "node tools/cbd/cbd-analytics.js report",
+    "cbd:clean": "node tools/cbd/cbd-analytics.js clean",
+    "cbd:setup": "node scripts/setup-cbd.js",
+    "cbd:test": "node scripts/test-cbd.js",
+    "dev:ia": "npm run cbd:validate && npm run cbd:roadmap",
+    "install:cbd": "npm run cbd:setup && npm run cbd:test",
+    "validate:all": "npm run cbd:test && npm run cbd:analytics"
   },
   "keywords": ["framework", "automation", "development", "personal"],
   "phase": "3-automation-complete",
@@ -31,5 +47,15 @@
   },
   "engines": {
     "node": ">=16.0.0"
+  },
+  "cbd": {
+    "version": "2.0",
+    "configFile": "docs/DOC_CoPilot_Practices.md",
+    "logLevel": "info",
+    "enableAnalytics": true,
+    "autoCleanLogs": true,
+    "maxLogAge": 30,
+    "strictMode": true,
+    "roadmapFile": "../Projet_Learning/roadmap/README.md"
   }
 }
