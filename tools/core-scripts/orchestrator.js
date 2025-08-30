@@ -344,7 +344,7 @@ class DevIAOrchestrator {
             suggestions: this.generateImprovementSuggestions()
         };
         
-        const logPath = path.join(process.cwd(), 'LOG_POSTMORTEM.md');
+        const logPath = path.join(__dirname, '..', '..', 'docs', 'LOG_POSTMORTEM.md');
         let logContent = '';
         
         if (fs.existsSync(logPath)) {
