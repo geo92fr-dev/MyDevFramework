@@ -4,6 +4,9 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# Archive folder (old scripts and docs)
+archive/
+
 # Framework generated projects (keep only framework core)
 /nouveau-*
 /test-*
