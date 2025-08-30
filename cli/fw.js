@@ -17,11 +17,11 @@ class FrameworkCLI {
 
   showHelp() {
     console.log(`
- FRAMEWORK PERSONNEL CLI v${this.version}
-========================================
+ FRAMEWORK PERSONNEL CLI v${this.version} - EXTERNE UNIQUEMENT
+===============================================================
 
 COMMANDES DISPONIBLES:
-  create <nom>     - Créer nouveau projet depuis template
+  create <nom>     - Créer nouveau projet EXTERNE avec Git indépendant
   config <action>  - Gérer configuration (show|set)
   snippet <action> - Gérer snippets (add|list|use)
   sync            - Synchroniser tous projets framework
@@ -32,19 +32,19 @@ COMMANDES DISPONIBLES:
   ini             - Gérer configuration personnelle (show|edit|sync)
 
 EXEMPLES:
-  fw create mon-app-svelte
+  fw create mon-app-svelte                    # Utilise project.ini
+  fw create mon-app --external-path C:\\MesProjets  # Chemin spécifique
   fw config show
-  fw config set author "Votre Nom"
   fw ini show
-  fw ini sync
   fw snippet list
-  fw sync
-  fw status
-  fw hooks install
   
 OPTIONS:
-  --help, -h      - Afficher cette aide
-  --version, -v   - Afficher version
+  --external-path <path>  - Chemin spécifique pour le projet externe
+  --help, -h             - Afficher cette aide
+  --version, -v          - Afficher version
+
+🎯 IMPORTANT: MyDevFramework ne crée QUE des projets externes
+   Chaque projet a son propre Git indépendant du framework
 `);
   }
 
@@ -59,10 +59,15 @@ OPTIONS:
         const projectName = args[0];
         const options = {};
         
-        // Parser les options
+        // Parser les options pour projets externes uniquement
         for (let i = 1; i < args.length; i++) {
+          if (args[i] === '--external-path' && args[i + 1]) {
+            options.externalPath = args[i + 1];
+            i++; // Skip next argument
+          }
+          // Maintenir compatibilité avec --config (sera ignoré)
           if (args[i] === '--config' && args[i + 1]) {
-            options.config = args[i + 1];
+            console.log('⚠️  --config ignoré: MyDevFramework utilise project.ini uniquement');
             i++; // Skip next argument
           }
         }
@@ -102,27 +107,34 @@ OPTIONS:
   async createProject(name, options = {}) {
     if (!name) {
       console.log('❌ Nom de projet requis');
-      console.log('Usage: fw create <nom-projet> [--config <path-to-project.ini>]');
+      console.log('Usage: fw create <nom-projet> [--external-path <path>]');
       return;
     }
 
-    console.log(`🚀 CRÉATION PROJET: ${name}`);
-    console.log('=========================');
+    console.log(`🚀 CRÉATION PROJET EXTERNE: ${name}`);
+    console.log('============================');
+    console.log('🎯 MyDevFramework - Mode EXTERNE UNIQUEMENT');
+    console.log('   Projet créé avec Git indépendant\n');
     
     try {
       const createScript = path.join(this.frameworkPath, 'tools', 'create-project.js');
       
-      // Si un fichier de config est spécifié
-      if (options.config) {
-        console.log(`📋 Utilisation de la configuration: ${options.config}`);
-        execSync(`node "${createScript}" "${name}" "" "${options.config}"`, { stdio: 'inherit' });
+      // Toujours utiliser project.ini pour les chemins externes
+      const projectIniPath = path.join(this.frameworkPath, 'project.ini');
+      console.log(`📋 Utilisation de la configuration: ${projectIniPath}`);
+      
+      // Passer le chemin externe si spécifié
+      if (options.externalPath) {
+        console.log(`📁 Chemin externe spécifique: ${options.externalPath}`);
+        execSync(`node "${createScript}" "${name}" "" "${projectIniPath}" --external-path "${options.externalPath}"`, { stdio: 'inherit' });
       } else {
-        execSync(`node "${createScript}" "${name}"`, { stdio: 'inherit' });
+        console.log(`📁 Utilisation des chemins configurés dans project.ini`);
+        execSync(`node "${createScript}" "${name}" "" "${projectIniPath}"`, { stdio: 'inherit' });
       }
       
-      console.log(`✅ Projet ${name} créé avec succès`);
+      console.log(`✅ Projet externe ${name} créé avec succès`);
     } catch (error) {
-      console.error('❌ Erreur création projet:', error.message);
+      console.error('❌ Erreur création projet externe:', error.message);
     }
   }
 

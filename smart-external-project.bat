@@ -1,52 +1,33 @@
 @echo off
 setlocal EnableDelayedExpansion
+chcp 65001 >nul
+echo.
+echo ================================================================
+echo  MyDevFramework v1.3.0 - Script Intelligent EXTERNE UNIQUEMENT
+echo ================================================================
+echo.
 
-REM ============================================================================
-REM LANCEMENT RAPIDE INTELLIGENT - Lit project.ini pour les chemins
-REM ============================================================================
+echo 🎯 MyDevFramework - Mode EXTERNE UNIQUEMENT
+echo    Création de projets externes avec Git indépendant
+echo.
 
 if "%1"=="" (
+    echo Usage: smart-external-project.bat [NomDuProjet]
     echo.
-    echo 🚀 CRÉATION PROJET EXTERNE RAPIDE (INTELLIGENT)
-    echo ===============================================
-    echo.
-    echo Usage: smart-external-project.bat NomDuProjet
-    echo.
-    echo Ce script:
-    echo   ✅ Lit automatiquement project.ini
-    echo   ✅ Utilise les chemins [PathsExterne] configurés
-    echo   ✅ Affiche la destination avant création
-    echo   ✅ Donne les commandes exactes après création
-    echo.
+    set /p "project_name=Nom du projet à créer: "
+) else (
+    set "project_name=%1"
+)
+
+if "%project_name%"=="" (
+    echo ❌ Nom de projet requis
     pause
     exit /b 1
 )
 
-set PROJECT_NAME=%1
-
 echo.
-echo 🔍 Lecture de la configuration project.ini...
-echo =============================================
-
-REM Lire les chemins depuis project.ini
-for /f "tokens=2 delims==" %%a in ('type project.ini ^| findstr "external_projects_path"') do (
-    set EXTERNAL_PROJECTS=%%a
-    set EXTERNAL_PROJECTS=!EXTERNAL_PROJECTS: =!
-)
-
-for /f "tokens=2 delims==" %%a in ('type project.ini ^| findstr "external_templates_path"') do (
-    set EXTERNAL_TEMPLATES=%%a
-    set EXTERNAL_TEMPLATES=!EXTERNAL_TEMPLATES: =!
-)
-
-for /f "tokens=2 delims==" %%a in ('type project.ini ^| findstr "external_backup_path"') do (
-    set EXTERNAL_BACKUP=%%a
-    set EXTERNAL_BACKUP=!EXTERNAL_BACKUP: =!
-)
-
-REM Déduire le chemin de base
-for %%a in ("!EXTERNAL_PROJECTS!") do set EXTERNAL_BASE=%%~dpa
-set EXTERNAL_BASE=!EXTERNAL_BASE:~0,-1!
+echo � Lancement de la création du projet externe: %project_name%
+call create-external-only.bat "%project_name%"
 
 echo ✅ Configuration lue depuis project.ini:
 echo    📁 Projets: !EXTERNAL_PROJECTS!
