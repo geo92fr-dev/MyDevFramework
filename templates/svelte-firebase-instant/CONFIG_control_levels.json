@@ -1,0 +1,143 @@
+{
+  "description": "Configuration des niveaux de contrôle pour le développement FunLearning V1.0",
+  "version": "1.0.0",
+  "lastUpdated": "2025-08-30",
+  "controlLevels": {
+    "strict": {
+      "description": "Contrôle strict - Proche de la production",
+      "security": {
+        "allowDevVulnerabilities": false,
+        "maxCriticalVulnerabilities": 0,
+        "maxHighVulnerabilities": 0,
+        "maxModerateVulnerabilities": 2
+      },
+      "roadmap": {
+        "allowDeviations": false,
+        "requirePhaseValidation": true,
+        "blockOnMissingFiles": true
+      },
+      "quality": {
+        "minTestCoverage": 90,
+        "maxComplexity": 8,
+        "requireAllTests": true
+      }
+    },
+    "controlled": {
+      "description": "Contrôle équilibré - Sécurité avec flexibilité (RECOMMANDÉ)",
+      "security": {
+        "allowDevVulnerabilities": true,
+        "maxCriticalVulnerabilities": 0,
+        "maxHighVulnerabilities": 2,
+        "maxModerateVulnerabilities": 5,
+        "blockedPackages": [
+          "express",
+          "lodash",
+          "request",
+          "axios",
+          "jsonwebtoken"
+        ]
+      },
+      "roadmap": {
+        "allowDeviations": true,
+        "requirePhaseValidation": false,
+        "blockOnMissingFiles": false,
+        "requireCriticalFiles": true
+      },
+      "quality": {
+        "minTestCoverage": 70,
+        "maxComplexity": 10,
+        "requireAllTests": false,
+        "allowWarnings": 3
+      }
+    },
+    "permissive": {
+      "description": "Contrôle minimal - Maximum de flexibilité (DÉCONSEILLÉ)",
+      "security": {
+        "allowDevVulnerabilities": true,
+        "maxCriticalVulnerabilities": 1,
+        "maxHighVulnerabilities": 5,
+        "maxModerateVulnerabilities": 10,
+        "blockedPackages": [
+          "request",
+          "lodash"
+        ]
+      },
+      "roadmap": {
+        "allowDeviations": true,
+        "requirePhaseValidation": false,
+        "blockOnMissingFiles": false,
+        "requireCriticalFiles": false
+      },
+      "quality": {
+        "minTestCoverage": 50,
+        "maxComplexity": 15,
+        "requireAllTests": false,
+        "allowWarnings": 10
+      }
+    }
+  },
+  "currentMode": "controlled",
+  "environmentSettings": {
+    "development": {
+      "defaultLevel": "controlled",
+      "allowLevelOverride": true,
+      "logLevel": "info",
+      "autoFixMinor": true
+    },
+    "staging": {
+      "defaultLevel": "strict",
+      "allowLevelOverride": false,
+      "logLevel": "warn",
+      "autoFixMinor": false
+    },
+    "production": {
+      "defaultLevel": "strict",
+      "allowLevelOverride": false,
+      "logLevel": "error",
+      "autoFixMinor": false,
+      "additionalChecks": [
+        "performance",
+        "accessibility",
+        "seo"
+      ]
+    }
+  },
+  "notifications": {
+    "onLevelChange": {
+      "console": true,
+      "logFile": true,
+      "email": false
+    },
+    "onViolation": {
+      "console": true,
+      "logFile": true,
+      "slack": false
+    },
+    "onSuccess": {
+      "console": true,
+      "logFile": false
+    }
+  },
+  "autoAdjustment": {
+    "enabled": true,
+    "basedOn": [
+      "successRate",
+      "violationFrequency",
+      "teamFeedback"
+    ],
+    "adjustmentWindow": "7d",
+    "maxAdjustmentStep": 1
+  },
+  "escalation": {
+    "criticalViolations": {
+      "notifyTeamLead": true,
+      "blockDeployment": true,
+      "requireManualReview": true
+    },
+    "repeatedViolations": {
+      "threshold": 3,
+      "action": "increaseSecurity",
+      "notifyStakeholders": true
+    }
+  }
+}

@@ -1,0 +1,51 @@
+﻿{
+  "name": "ecommerce-config",
+  "description": "Configuration complète pour projets e-commerce",
+  "version": "1.0.0",
+  "technologies": {
+    "payment": "stripe",
+    "inventory": "firestore",
+    "auth": "firebase-auth",
+    "analytics": "google-analytics"
+  },
+  "required_env": [
+    "STRIPE_PUBLIC_KEY",
+    "STRIPE_SECRET_KEY", 
+    "FIREBASE_CONFIG",
+    "GA_TRACKING_ID"
+  ],
+  "suggested_packages": {
+    "production": [
+      "@stripe/stripe-js",
+      "firebase",
+      "svelte-routing"
+    ],
+    "development": [
+      "@stripe/stripe-mock",
+      "stripe-cli"
+    ]
+  },
+  "snippets_required": [
+    "auth/svelte-auth-firebase.js",
+    "utils/generic-utils.js",
+    "ui/Modal.svelte"
+  ],
+  "pages_structure": {
+    "routes": [
+      "/products",
+      "/product/[id]", 
+      "/cart",
+      "/checkout",
+      "/admin/dashboard",
+      "/admin/products",
+      "/admin/orders"
+    ]
+  },
+  "components_needed": [
+    "ProductCard",
+    "ShoppingCart", 
+    "CheckoutForm",
+    "PaymentModal",
+    "OrderSummary"
+  ]
+}

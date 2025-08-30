@@ -1,0 +1,35 @@
+﻿{
+  "name": "@mon-framework/personnel",
+  "version": "1.3.0",
+  "description": "Framework personnel évolutif - Phase 3 Automation Complete",
+  "author": "Developer",
+  "bin": {
+    "fw": "./cli/fw.js"
+  },
+  "scripts": {
+    "dashboard": "node tools/dashboard.js",
+    "test:templates": "node tests/test-templates.js",
+    "create:project": "node tools/create-project.js",
+    "post-mortem": "node tools/post-mortem.js",
+    "extract-patterns": "node tools/extract-patterns.js",
+    "sync": "node tools/global-sync.js",
+    "hooks:install": "node tools/git-hooks/hooks-manager.js scan",
+    "hooks:config": "node tools/git-hooks/hooks-manager.js auto-config",
+    "hooks:report": "node tools/git-hooks/hooks-manager.js report",
+    "phase3:setup": "echo Phase 3 activée - Automation complète",
+    "install-global": "npm install -g ."
+  },
+  "keywords": ["framework", "automation", "development", "personal"],
+  "phase": "3-automation-complete",
+  "evolution": {
+    "templates": ["svelte-firebase-instant"],
+    "snippets": 3,
+    "projects_analyzed": 1,
+    "patterns_extracted": 5,
+    "cli_commands": ["create", "snippet", "sync", "status", "backup", "migrate"],
+    "automation_features": ["global-sync", "git-hooks", "pattern-extraction"]
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}

@@ -1,0 +1,368 @@
+{
+  "name": "FunLearning Quality Gates Configuration",
+  "version": "1.0.0",
+  "description": "Configuration des seuils de qualité par phase de développement",
+  
+  "qualityGates": {
+    "phase-0": {
+      "description": "Setup & Architecture",
+      "complexity": {
+        "max": 5,
+        "metric": "Cyclomatic complexity per function"
+      },
+      "coverage": {
+        "minimum": 70,
+        "metric": "Line coverage percentage"
+      },
+      "security": {
+        "level": "medium",
+        "allowedVulnerabilities": {
+          "critical": 0,
+          "high": 0,
+          "medium": 2,
+          "low": 5
+        }
+      },
+      "performance": {
+        "required": false,
+        "lighthouse": {
+          "performance": 50,
+          "accessibility": 90,
+          "bestPractices": 80,
+          "seo": 70
+        }
+      },
+      "codeStandards": {
+        "eslint": "strict",
+        "prettier": "enforced",
+        "typescript": "strict"
+      }
+    },
+    
+    "phase-1": {
+      "description": "Firebase & Auth Google",
+      "complexity": {
+        "max": 7,
+        "metric": "Cyclomatic complexity per function"
+      },
+      "coverage": {
+        "minimum": 80,
+        "excludePatterns": ["*.config.js", "*.test.js"]
+      },
+      "security": {
+        "level": "high",
+        "allowedVulnerabilities": {
+          "critical": 0,
+          "high": 0,
+          "medium": 1,
+          "low": 3
+        },
+        "additionalChecks": [
+          "firebase-auth-validation",
+          "environment-secrets-check",
+          "api-rate-limiting"
+        ]
+      },
+      "performance": {
+        "required": false
+      },
+      "authSpecific": {
+        "sessionValidation": "required",
+        "tokenExpiration": "enforced",
+        "secureHeaders": "mandatory"
+      }
+    },
+    
+    "phase-2": {
+      "description": "Contenu & Interface Dynamique",
+      "complexity": {
+        "max": 8,
+        "metric": "Cyclomatic complexity per function"
+      },
+      "coverage": {
+        "minimum": 85,
+        "componentCoverage": 90
+      },
+      "security": {
+        "level": "high",
+        "allowedVulnerabilities": {
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 2
+        },
+        "additionalChecks": [
+          "xss-protection",
+          "content-security-policy",
+          "markdown-sanitization"
+        ]
+      },
+      "performance": {
+        "required": true,
+        "lighthouse": {
+          "performance": 80,
+          "accessibility": 95,
+          "bestPractices": 90,
+          "seo": 85
+        },
+        "bundleSize": {
+          "maxSize": "500KB",
+          "chunkSize": "100KB"
+        }
+      },
+      "uiSpecific": {
+        "responsiveDesign": "mandatory",
+        "accessibilityCompliance": "WCAG-2.1-AA",
+        "loadingStates": "required"
+      }
+    },
+    
+    "phase-3": {
+      "description": "Exercices & Progression",
+      "complexity": {
+        "max": 8,
+        "metric": "Cyclomatic complexity per function"
+      },
+      "coverage": {
+        "minimum": 85,
+        "interactiveCoverage": 95
+      },
+      "security": {
+        "level": "high",
+        "allowedVulnerabilities": {
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 1
+        },
+        "additionalChecks": [
+          "user-data-validation",
+          "progress-integrity",
+          "anti-cheating-measures"
+        ]
+      },
+      "performance": {
+        "required": true,
+        "lighthouse": {
+          "performance": 85,
+          "accessibility": 95,
+          "bestPractices": 92,
+          "seo": 85
+        },
+        "interactionLatency": "< 100ms"
+      },
+      "exerciseSpecific": {
+        "dataValidation": "strict",
+        "offlineCapability": "basic",
+        "progressPersistence": "guaranteed"
+      }
+    },
+    
+    "phase-4": {
+      "description": "PWA & Offline",
+      "complexity": {
+        "max": 9,
+        "metric": "Cyclomatic complexity per function"
+      },
+      "coverage": {
+        "minimum": 90,
+        "offlineCoverage": 95
+      },
+      "security": {
+        "level": "high",
+        "allowedVulnerabilities": {
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 1
+        },
+        "additionalChecks": [
+          "service-worker-security",
+          "cache-poisoning-protection",
+          "offline-data-integrity"
+        ]
+      },
+      "performance": {
+        "required": true,
+        "lighthouse": {
+          "performance": 90,
+          "accessibility": 95,
+          "bestPractices": 95,
+          "seo": 90,
+          "pwa": 100
+        },
+        "offlinePerformance": {
+          "cacheHitRatio": "> 95%",
+          "syncLatency": "< 2s"
+        }
+      },
+      "pwaSpecific": {
+        "manifestValidation": "required",
+        "serviceWorkerCoverage": "complete",
+        "offlineFunctionality": "essential-features",
+        "installability": "verified"
+      }
+    },
+    
+    "phase-5": {
+      "description": "Admin & Import",
+      "complexity": {
+        "max": 9,
+        "metric": "Cyclomatic complexity per function"
+      },
+      "coverage": {
+        "minimum": 90,
+        "adminCoverage": 95
+      },
+      "security": {
+        "level": "critical",
+        "allowedVulnerabilities": {
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0
+        },
+        "additionalChecks": [
+          "admin-authentication",
+          "role-based-access",
+          "audit-logging",
+          "data-encryption",
+          "backup-verification"
+        ]
+      },
+      "performance": {
+        "required": true,
+        "lighthouse": {
+          "performance": 90,
+          "accessibility": 95,
+          "bestPractices": 95,
+          "seo": 90
+        },
+        "bulkOperations": "optimized"
+      },
+      "adminSpecific": {
+        "accessControl": "multi-factor",
+        "auditTrail": "comprehensive",
+        "dataValidation": "paranoid",
+        "backupStrategy": "verified"
+      }
+    },
+    
+    "phase-6": {
+      "description": "Polish & Performance",
+      "complexity": {
+        "max": 10,
+        "metric": "Cyclomatic complexity per function"
+      },
+      "coverage": {
+        "minimum": 95,
+        "e2eCoverage": 100
+      },
+      "security": {
+        "level": "critical",
+        "allowedVulnerabilities": {
+          "critical": 0,
+          "high": 0,
+          "medium": 0,
+          "low": 0
+        },
+        "additionalChecks": [
+          "penetration-testing",
+          "security-headers-validation",
+          "dependency-scanning",
+          "secrets-scanning"
+        ]
+      },
+      "performance": {
+        "required": true,
+        "lighthouse": {
+          "performance": 95,
+          "accessibility": 100,
+          "bestPractices": 100,
+          "seo": 95,
+          "pwa": 100
+        },
+        "coreWebVitals": {
+          "LCP": "< 2.5s",
+          "FID": "< 100ms",
+          "CLS": "< 0.1"
+        },
+        "loadTesting": "required"
+      },
+      "productionSpecific": {
+        "monitoring": "comprehensive",
+        "alerting": "configured",
+        "scalability": "verified",
+        "disasterRecovery": "tested"
+      }
+    }
+  },
+  
+  "globalStandards": {
+    "documentation": {
+      "codeComments": "mandatory-for-complex-functions",
+      "apiDocumentation": "openapi-3.0",
+      "readmeCompleteness": "comprehensive"
+    },
+    "git": {
+      "commitConvention": "conventional-commits",
+      "branchNaming": "feature/phase-X-description",
+      "mergeStrategy": "rebase-and-merge"
+    },
+    "dependencies": {
+      "licenseCompliance": "mit-compatible",
+      "vulnerabilityScanning": "automated",
+      "updateStrategy": "conservative"
+    }
+  },
+  
+  "tools": {
+    "static-analysis": {
+      "eslint": {
+        "config": "@typescript-eslint/recommended",
+        "customRules": ["no-unused-vars", "complexity"]
+      },
+      "sonarqube": {
+        "qualityProfile": "funlearning-strict",
+        "gateConditions": "zero-bugs-zero-vulnerabilities"
+      }
+    },
+    "security": {
+      "snyk": {
+        "severity": "high",
+        "ignoreDevDependencies": false
+      },
+      "audit": {
+        "level": "moderate",
+        "production": "strict"
+      }
+    },
+    "performance": {
+      "lighthouse-ci": {
+        "budgets": "strict",
+        "assertions": "phase-specific"
+      },
+      "bundleAnalyzer": {
+        "maxSize": "configurable-per-phase"
+      }
+    }
+  },
+  
+  "reportingAndLogging": {
+    "postMortem": {
+      "enabled": true,
+      "autoGeneration": true,
+      "improvementTracking": true
+    },
+    "metrics": {
+      "collection": "automated",
+      "retention": "90-days",
+      "dashboard": "real-time"
+    },
+    "alerts": {
+      "qualityRegression": "immediate",
+      "securityIssues": "critical",
+      "performanceDegradation": "warning"
+    }
+  }
+}
