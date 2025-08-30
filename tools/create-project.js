@@ -9,14 +9,38 @@ const fs = require("fs");
 const path = require("path");
 const { execSync } = require("child_process");
 const ProjectConfigManager = require("./config-manager.js");
-
-const config = new ProjectConfigManager();
+const IniConfigManager = require("./ini-manager.js");
 
 const PROJECT_NAME = process.argv[2];
-const TEMPLATE = process.argv[3] || config.getDefaultTemplate();
+const TEMPLATE = process.argv[3] || null;
+const EXTERNAL_CONFIG = process.argv[4] || null;
+
+// Charger la configuration avec le mode
+const iniManager = new IniConfigManager();
+const projectConfig = iniManager.getProjectConfig(PROJECT_NAME);
+const config = new ProjectConfigManager();
+
+// Override avec la config spécifique du projet
+if (projectConfig) {
+    console.log(`📋 Mode: ${iniManager.getCreationMode()}`);
+    console.log(`👤 Auteur: ${projectConfig.author}`);
+    console.log(`📧 Email: ${projectConfig.email}`);
+    
+    // Mettre à jour les informations de configuration
+    config.config.projectDefaults = {
+        ...config.config.projectDefaults,
+        author: projectConfig.author,
+        email: projectConfig.email,
+        description: projectConfig.description,
+        version: projectConfig.version,
+        license: projectConfig.license
+    };
+}
+
+const FINAL_TEMPLATE = TEMPLATE || projectConfig?.template || config.getDefaultTemplate();
 
 if (!PROJECT_NAME) {
-  console.log("❌ Usage: node tools/create-project.js <nom-projet> [template]");
+  console.log("❌ Usage: node tools/create-project.js <nom-projet> [template] [config-file]");
   console.log("📋 Templates disponibles:", config.config.templates?.available?.join(', ') || 'svelte-firebase-instant');
   process.exit(1);
 }
@@ -28,7 +52,7 @@ if (!validation.valid) {
   process.exit(1);
 }
 
-console.log(`🚀 Création projet ${PROJECT_NAME} avec template ${TEMPLATE}`);
+console.log(`🚀 Création projet ${PROJECT_NAME} avec template ${FINAL_TEMPLATE}`);
 console.log(`👤 Auteur: ${config.getAuthor()}`);
 console.log(`📧 Email: ${config.getEmail()}`);
 
@@ -40,10 +64,10 @@ if (fs.existsSync(projectPath) && config.getValidationRules().checkProjectNameEx
 }
 
 // 1. Copier template
-const templatePath = path.join(__dirname, "..", "templates", TEMPLATE);
+const templatePath = path.join(__dirname, "..", "templates", FINAL_TEMPLATE);
 
 if (!fs.existsSync(templatePath)) {
-  console.log(`❌ Template ${TEMPLATE} non trouvé`);
+  console.log(`❌ Template ${FINAL_TEMPLATE} non trouvé`);
   process.exit(1);
 }
 

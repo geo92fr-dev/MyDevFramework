@@ -111,6 +111,63 @@ class IniConfigManager {
     }
 
     /**
+     * Obtient le mode de création configuré
+     * @returns {string} 'LOCAL' ou 'EXTERNE'
+     */
+    getCreationMode() {
+        const config = this.loadConfig();
+        return config.Mode?.creation_mode || 'LOCAL';
+    }
+
+    /**
+     * Obtient la configuration adaptée au mode
+     * @param {string} projectName - Nom du projet (optionnel, utilisé pour override)
+     * @returns {object} Configuration adaptée
+     */
+    getProjectConfig(projectName = null) {
+        const config = this.loadConfig();
+        const mode = this.getCreationMode();
+        
+        console.log(`🎯 Mode de création: ${mode}`);
+        
+        if (mode === 'EXTERNE') {
+            // Utiliser la configuration projet spécifique
+            const projectConfig = {
+                name: projectName || config.Project?.name || 'nouveau-projet',
+                description: config.Project?.description || config.Project?.default_description,
+                author: config.Personal?.author_name,
+                email: config.Personal?.author_email,
+                version: config.Project?.version || config.Project?.default_version,
+                license: config.Project?.license,
+                template: config.Template?.template || config.Project?.default_template,
+                git: {
+                    username: config.Git?.git_username,
+                    email: config.Git?.git_email,
+                    repository_url: config.Git?.repository_url?.replace(/\/[^/]*$/, `/${projectName || config.Project?.name}`)
+                }
+            };
+            return projectConfig;
+        } else {
+            // Mode LOCAL - utiliser les paramètres par défaut
+            const localConfig = {
+                name: projectName || 'nouveau-projet',
+                description: config.Project?.default_description,
+                author: config.Personal?.author_name,
+                email: config.Personal?.author_email,
+                version: config.Project?.default_version,
+                license: config.Project?.license,
+                template: config.Project?.default_template,
+                git: {
+                    username: config.Git?.git_username,
+                    email: config.Git?.git_email,
+                    repository_url: `https://github.com/${config.Git?.git_username}/${projectName || 'nouveau-projet'}`
+                }
+            };
+            return localConfig;
+        }
+    }
+
+    /**
      * Affiche la configuration actuelle
      */
     displayConfig() {

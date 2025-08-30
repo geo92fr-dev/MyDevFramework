@@ -56,7 +56,18 @@ OPTIONS:
   async executeCommand(command, args) {
     switch (command) {
       case 'create':
-        await this.createProject(args[0]);
+        const projectName = args[0];
+        const options = {};
+        
+        // Parser les options
+        for (let i = 1; i < args.length; i++) {
+          if (args[i] === '--config' && args[i + 1]) {
+            options.config = args[i + 1];
+            i++; // Skip next argument
+          }
+        }
+        
+        await this.createProject(projectName, options);
         break;
       case 'config':
         await this.manageConfig(args);
@@ -88,22 +99,30 @@ OPTIONS:
     }
   }
 
-  async createProject(name) {
+  async createProject(name, options = {}) {
     if (!name) {
-      console.log(' Nom de projet requis');
-      console.log('Usage: fw create <nom-projet>');
+      console.log('❌ Nom de projet requis');
+      console.log('Usage: fw create <nom-projet> [--config <path-to-project.ini>]');
       return;
     }
 
-    console.log(` CRÉATION PROJET: ${name}`);
+    console.log(`🚀 CRÉATION PROJET: ${name}`);
     console.log('=========================');
     
     try {
       const createScript = path.join(this.frameworkPath, 'tools', 'create-project.js');
-      execSync(`node "${createScript}" "${name}"`, { stdio: 'inherit' });
-      console.log(` Projet ${name} créé avec succès`);
+      
+      // Si un fichier de config est spécifié
+      if (options.config) {
+        console.log(`📋 Utilisation de la configuration: ${options.config}`);
+        execSync(`node "${createScript}" "${name}" "" "${options.config}"`, { stdio: 'inherit' });
+      } else {
+        execSync(`node "${createScript}" "${name}"`, { stdio: 'inherit' });
+      }
+      
+      console.log(`✅ Projet ${name} créé avec succès`);
     } catch (error) {
-      console.error(' Erreur création projet:', error.message);
+      console.error('❌ Erreur création projet:', error.message);
     }
   }
 
@@ -156,6 +175,16 @@ OPTIONS:
           this.createProjectIni(projectName, projectDescription);
           break;
           
+        case 'mode':
+          const newMode = args[1];
+          if (newMode === 'LOCAL' || newMode === 'EXTERNE') {
+            this.setCreationMode(newMode);
+          } else {
+            console.log('Modes disponibles: LOCAL, EXTERNE');
+            console.log('Usage: fw ini mode <LOCAL|EXTERNE>');
+          }
+          break;
+          
         case 'edit':
           const iniPath = path.join(this.frameworkPath, 'createproject.ini');
           console.log(`📝 Éditez le fichier: ${iniPath}`);
@@ -167,6 +196,7 @@ OPTIONS:
           console.log('  show - Afficher la configuration actuelle');
           console.log('  sync - Synchroniser avec project.config.json');
           console.log('  init <nom> <description> - Créer project.ini local');
+          console.log('  mode <LOCAL|EXTERNE> - Changer le mode de création');
           console.log('  edit - Informations pour éditer le fichier');
       }
     } catch (error) {
@@ -206,6 +236,41 @@ customize = true
       console.log('🚀 Puis utilisez "fw create" pour créer le projet');
     } catch (error) {
       console.error('❌ Erreur création project.ini:', error.message);
+    }
+  }
+
+  setCreationMode(mode) {
+    const projectIniPath = path.join(this.frameworkPath, 'project.ini');
+    
+    try {
+      if (!fs.existsSync(projectIniPath)) {
+        console.log('❌ Fichier project.ini non trouvé');
+        return;
+      }
+      
+      let content = fs.readFileSync(projectIniPath, 'utf8');
+      
+      // Remplacer le mode dans le fichier
+      const modeRegex = /creation_mode\s*=\s*(LOCAL|EXTERNE)/;
+      if (modeRegex.test(content)) {
+        content = content.replace(modeRegex, `creation_mode = ${mode}`);
+      } else {
+        // Ajouter la section Mode si elle n'existe pas
+        content = `[Mode]\ncreation_mode = ${mode}\n\n${content}`;
+      }
+      
+      fs.writeFileSync(projectIniPath, content);
+      console.log(`✅ Mode de création changé vers: ${mode}`);
+      
+      // Afficher la différence
+      if (mode === 'LOCAL') {
+        console.log('📋 Mode LOCAL: Utilise les paramètres par défaut du framework');
+      } else {
+        console.log('📋 Mode EXTERNE: Utilise la configuration projet spécifique');
+      }
+      
+    } catch (error) {
+      console.error('❌ Erreur changement de mode:', error.message);
     }
   }
 
