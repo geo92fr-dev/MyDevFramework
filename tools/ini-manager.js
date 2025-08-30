@@ -224,6 +224,33 @@ class IniConfigManager {
             console.error('Erreur lors de la mise à jour:', error.message);
         }
     }
+
+    /**
+     * Obtient le chemin des projets externes
+     * @returns {string} Chemin des projets externes
+     */
+    getExternalProjectsPath() {
+        const config = this.loadConfig();
+        return config.PathsExterne?.external_projects_path || 'C:\\MyDevProject';
+    }
+
+    /**
+     * Obtient le chemin des templates externes
+     * @returns {string} Chemin des templates externes
+     */
+    getExternalTemplatesPath() {
+        const config = this.loadConfig();
+        return config.PathsExterne?.external_templates_path || 'C:\\MyDevProject\\templates';
+    }
+
+    /**
+     * Obtient le chemin des backups externes
+     * @returns {string} Chemin des backups externes
+     */
+    getExternalBackupPath() {
+        const config = this.loadConfig();
+        return config.PathsExterne?.external_backup_path || 'C:\\MyDevProject\\backups';
+    }
 }
 
 module.exports = IniConfigManager;

@@ -56,10 +56,30 @@ console.log(`🚀 Création projet ${PROJECT_NAME} avec template ${FINAL_TEMPLAT
 console.log(`👤 Auteur: ${config.getAuthor()}`);
 console.log(`📧 Email: ${config.getEmail()}`);
 
+// Déterminer le chemin de destination selon le mode
+let projectPath;
+const creationMode = iniManager.getCreationMode();
+
+if (creationMode === 'EXTERNE') {
+  // Mode externe uniquement - utiliser les chemins configurés
+  const externalProjectsPath = iniManager.getExternalProjectsPath();
+  projectPath = path.join(externalProjectsPath, PROJECT_NAME);
+  console.log(`📁 Mode EXTERNE: ${projectPath}`);
+  
+  // Créer le dossier parent si nécessaire
+  if (!fs.existsSync(externalProjectsPath)) {
+    fs.mkdirSync(externalProjectsPath, { recursive: true });
+    console.log(`📁 Dossier parent créé: ${externalProjectsPath}`);
+  }
+} else {
+  // Fallback (ne devrait pas arriver avec mode externe uniquement)
+  projectPath = path.join(process.cwd(), PROJECT_NAME);
+  console.log(`📁 Mode LOCAL (fallback): ${projectPath}`);
+}
+
 // Vérifier si le projet existe déjà
-const projectPath = path.join(process.cwd(), PROJECT_NAME);
 if (fs.existsSync(projectPath) && config.getValidationRules().checkProjectNameExists) {
-  console.log(`❌ Le projet ${PROJECT_NAME} existe déjà !`);
+  console.log(`❌ Le projet ${PROJECT_NAME} existe déjà dans ${projectPath} !`);
   process.exit(1);
 }
 

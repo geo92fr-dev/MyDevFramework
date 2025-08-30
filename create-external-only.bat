@@ -76,7 +76,7 @@ echo ✅ Dossiers de base créés
 REM Utiliser le CLI pour créer le projet
 echo.
 echo 📦 Création du projet avec le CLI MyDevFramework...
-node cli\fw.js create-project "%project_name%" --external-path "%projects_path%"
+node cli\fw.js create "%project_name%"
 
 if %errorlevel% neq 0 (
     echo ❌ Erreur lors de la création du projet
