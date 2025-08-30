@@ -22,6 +22,7 @@ class FrameworkCLI {
 
 COMMANDES DISPONIBLES:
   create <nom>     - Créer nouveau projet EXTERNE avec Git indépendant
+  create-auto      - Créer projet avec nom/chemin depuis project.ini
   config <action>  - Gérer configuration (show|set)
   snippet <action> - Gérer snippets (add|list|use)
   sync            - Synchroniser tous projets framework
@@ -32,7 +33,8 @@ COMMANDES DISPONIBLES:
   ini             - Gérer configuration personnelle (show|edit|sync)
 
 EXEMPLES:
-  fw create mon-app-svelte                    # Utilise project.ini
+  fw create mon-app-svelte                    # Nom spécifique
+  fw create-auto                              # Utilise project.ini [Project] name
   fw create mon-app --external-path C:\\MesProjets  # Chemin spécifique
   fw config show
   fw ini show
@@ -73,6 +75,10 @@ OPTIONS:
         }
         
         await this.createProject(projectName, options);
+        break;
+      case 'create-auto':
+        // Utilise automatiquement le nom configuré dans project.ini
+        await this.createProjectAuto();
         break;
       case 'config':
         await this.manageConfig(args);
@@ -135,6 +141,34 @@ OPTIONS:
       console.log(`✅ Projet externe ${name} créé avec succès`);
     } catch (error) {
       console.error('❌ Erreur création projet externe:', error.message);
+    }
+  }
+
+  async createProjectAuto() {
+    console.log(`🚀 CRÉATION PROJET AUTO-CONFIG`);
+    console.log('===============================');
+    console.log('🎯 MyDevFramework - Configuration automatique depuis project.ini');
+    console.log('   Nom et chemin récupérés automatiquement\n');
+    
+    try {
+      // Charger la configuration INI pour récupérer le nom du projet
+      const path = require('path');
+      const IniConfigManager = require(path.join(this.frameworkPath, 'tools', 'ini-manager.js'));
+      const iniManager = new IniConfigManager();
+      
+      const projectName = iniManager.getProjectName();
+      const projectsPath = iniManager.getExternalProjectsPath();
+      
+      console.log(`📋 Nom du projet: ${projectName}`);
+      console.log(`📁 Chemin de base: ${projectsPath}`);
+      console.log(`🎯 Destination: ${path.join(projectsPath, projectName)}`);
+      console.log('');
+      
+      // Créer le projet avec le nom configuré
+      await this.createProject(projectName, {});
+      
+    } catch (error) {
+      console.error('❌ Erreur création projet auto:', error.message);
     }
   }
 

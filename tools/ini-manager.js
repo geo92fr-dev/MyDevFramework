@@ -235,21 +235,30 @@ class IniConfigManager {
     }
 
     /**
-     * Obtient le chemin des templates externes
+     * Obtient le chemin des templates externes (calculé automatiquement)
      * @returns {string} Chemin des templates externes
      */
     getExternalTemplatesPath() {
-        const config = this.loadConfig();
-        return config.PathsExterne?.external_templates_path || 'C:\\MyDevProject\\templates';
+        const basePath = this.getExternalProjectsPath();
+        return path.join(basePath, 'templates');
     }
 
     /**
-     * Obtient le chemin des backups externes
+     * Obtient le chemin des backups externes (calculé automatiquement)
      * @returns {string} Chemin des backups externes
      */
     getExternalBackupPath() {
+        const basePath = this.getExternalProjectsPath();
+        return path.join(basePath, 'backups');
+    }
+
+    /**
+     * Obtient le nom du projet depuis la configuration
+     * @returns {string} Nom du projet configuré
+     */
+    getProjectName() {
         const config = this.loadConfig();
-        return config.PathsExterne?.external_backup_path || 'C:\\MyDevProject\\backups';
+        return config.Project?.name || 'nouveau-projet';
     }
 }
 

@@ -1,0 +1,5 @@
+# Ce fichier indique que ce dossier est un TEMPLATE
+# VS Code doit ignorer la validation Svelte ici car les dépendances
+# ne sont pas installées - elles le seront dans le projet final
+
+TEMPLATE_FOLDER=true

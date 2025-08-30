@@ -102,7 +102,22 @@ try {
     }
   }
   
-  // 2. Personnaliser package.json
+  // 2. Copier le framework à côté du projet (même niveau)
+  console.log("🔧 Copie du framework MyDevFramework...");
+  const baseProjectPath = path.dirname(projectPath);
+  const frameworkDestPath = path.join(baseProjectPath, "MyDevFramework");
+  
+  // Copier tout le framework (sauf node_modules, .git, templates)
+  const frameworkSrcPath = path.join(__dirname, "..");
+  
+  try {
+    execSync(`robocopy "${frameworkSrcPath}" "${frameworkDestPath}" /E /XD node_modules .git templates archive projects`, { stdio: "inherit" });
+  } catch (error) {
+    // Ignorer les erreurs de robocopy
+  }
+  console.log(`   ✅ Framework copié → ${frameworkDestPath}`);
+
+  // 3. Personnaliser package.json
   const packageJsonPath = path.join(projectPath, "package.json");
   if (fs.existsSync(packageJsonPath)) {
     let packageJson = fs.readFileSync(packageJsonPath, "utf8");
@@ -119,13 +134,14 @@ try {
     fs.writeFileSync(packageJsonPath, JSON.stringify(parsed, null, 2));
   }
   
-  // 3. Personnaliser README
+  // 4. Personnaliser README
   const readmePath = path.join(projectPath, "README.md");
   if (fs.existsSync(readmePath)) {
     let readme = fs.readFileSync(readmePath, "utf8");
     readme = config.replaceTokens(readme, PROJECT_NAME);
     fs.writeFileSync(readmePath, readme);
   }
+
   
   console.log(`✅ Projet ${PROJECT_NAME} créé avec succès !`);
   
