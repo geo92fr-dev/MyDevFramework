@@ -1,7 +1,7 @@
-# Documentation des Bonnes Pratiques Copilot - MyDevFramework v2.0
+# Documentation des Bonnes Pratiques Copilot - MyDevFramework v2.2
 
 ## 🎯 Objectif
-Ce document recense les meilleures pratiques pour travailler efficacement avec GitHub Copilot dans le contexte de MyDevFramework, incluant les méthodologies TDD et les validations de sécurité.
+Ce document recense les meilleures pratiques pour travailler efficacement avec GitHub Copilot dans le contexte de MyDevFramework, incluant les méthodologies TDD, les validations de sécurité, et la **gestion critique des biais et erreurs de l'IA**.
 
 ## 📋 Bonnes Pratiques
 
@@ -19,6 +19,140 @@ Ce document recense les meilleures pratiques pour travailler efficacement avec G
 - **Mentionner TDD** dans les prompts de développement
 - **Spécifier les validations** requises (URL, email, etc.)
 - **Poser des questions clarifiantes** : Si des informations essentielles pour générer une réponse de haute qualité (par exemple, des contraintes techniques, des dépendances, des objectifs de sécurité) sont manquantes, pose-moi une question pour obtenir ces informations au lieu de faire des hypothèses.
+
+#### ⚠️ **Gestion des Biais et Erreurs de l'IA**
+
+**🔍 Principe Fondamental** : L'IA peut générer du code qui semble syntaxiquement correct mais contient des erreurs logiques, de sécurité ou de performance subtiles. **Une vérification critique est TOUJOURS nécessaire**.
+
+#### Biais et Limitations Courants :
+
+**1. Biais de Popularité** :
+```typescript
+// ❌ L'IA peut suggérer des patterns populaires mais inadaptés
+// Exemple : Utilisation systématique d'useEffect même quand inutile
+useEffect(() => {
+  setCount(count + 1); // ❌ Problème de closure, re-render infini
+}, []);
+
+// ✅ Solution appropriée après vérification
+const handleIncrement = useCallback(() => {
+  setCount(prev => prev + 1);
+}, []);
+```
+
+**2. Erreurs de Sécurité Subtiles** :
+```typescript
+// ❌ Code généré par IA qui semble correct mais vulnérable
+function sanitizeInput(input: string): string {
+  return input.replace(/<script>/g, ''); // ❌ Contournement possible
+}
+
+// ✅ Après vérification et correction
+import DOMPurify from 'dompurify';
+function sanitizeInput(input: string): string {
+  return DOMPurify.sanitize(input, { ALLOWED_TAGS: [] });
+}
+```
+
+**3. Logique Business Incorrecte** :
+```typescript
+// ❌ L'IA peut ne pas comprendre le contexte métier
+function calculateDiscount(price: number, userType: 'premium' | 'standard'): number {
+  if (userType === 'premium') {
+    return price * 0.8; // ❌ 20% de réduction peut être incorrecte selon les règles business
+  }
+  return price;
+}
+
+// ✅ Vérification avec les règles métier réelles
+function calculateDiscount(price: number, userType: 'premium' | 'standard'): number {
+  const discountRules = getBusinessDiscountRules(); // Règles centralisées
+  return applyDiscount(price, userType, discountRules);
+}
+```
+
+#### **🛡️ Stratégies de Vérification Obligatoires** :
+
+**1. Revue Systématique** :
+```
+✅ Checklist de vérification du code IA :
+- [ ] Logique métier conforme aux spécifications
+- [ ] Pas de vulnérabilités de sécurité évidentes
+- [ ] Gestion d'erreurs appropriée
+- [ ] Performance acceptable (pas de boucles infinies, N+1, etc.)
+- [ ] Tests unitaires couvrant les edge cases
+- [ ] Conformité aux standards du projet
+- [ ] Documentation claire des choix d'implémentation
+```
+
+**2. Tests Contradictoires** :
+```typescript
+// Toujours tester les cas que l'IA pourrait manquer
+describe('AI Generated Function Verification', () => {
+  it('should handle edge cases that AI might miss', () => {
+    // Test avec des données limites
+    expect(validateEmail('')).toBe(false);
+    expect(validateEmail(null)).toBe(false);
+    expect(validateEmail(undefined)).toBe(false);
+    expect(validateEmail('a'.repeat(1000) + '@test.com')).toBe(false);
+  });
+  
+  it('should prevent security vulnerabilities', () => {
+    // Test contre les attaques que l'IA pourrait ignorer
+    const maliciousInputs = [
+      '<img src=x onerror=alert(1)>',
+      'javascript:alert(1)',
+      '${7*7}', // Template injection
+      '\u0000' // Null byte injection
+    ];
+    
+    maliciousInputs.forEach(input => {
+      expect(() => processUserInput(input)).not.toThrow();
+      expect(processUserInput(input)).not.toContain('script');
+    });
+  });
+});
+```
+
+**3. Pair Programming avec l'IA** :
+```
+🤝 Approche recommandée :
+1. Demander à l'IA de générer le code
+2. Demander à l'IA d'identifier les problèmes potentiels de ce même code
+3. Comparer les deux réponses
+4. Faire une revue manuelle final
+5. Implémenter des tests de sécurité spécifiques
+```
+
+#### **📚 Prompts de Vérification** :
+
+```
+🔍 Prompt d'auto-critique :
+"Analyse ce code que tu viens de générer et identifie tous les problèmes potentiels :
+- Vulnérabilités de sécurité
+- Erreurs logiques subtiles  
+- Problèmes de performance
+- Edge cases non gérés
+- Violations des bonnes pratiques
+
+[Code à analyser]"
+
+🛡️ Prompt de test de sécurité :
+"Génère des tests unitaires pour identifier les failles de sécurité 
+de cette fonction, en particulier : injection, XSS, overflow, 
+validation insuffisante, et contournement d'autorisation.
+
+[Code à tester]"
+
+⚡ Prompt d'optimisation :
+"Révise ce code pour les problèmes de performance cachés :
+- Complexité algorithmique
+- Memory leaks potentiels
+- Opérations bloquantes
+- Requêtes inefficaces
+
+[Code à optimiser]"
+```
 
 #### Exemples de prompts de qualité :
 ```
@@ -826,6 +960,7 @@ npx copilot-cli review --security --performance ./src
 - [ ] Performance vérifiée (build < 5s)
 - [ ] **Code review Copilot exécuté** (sécurité + performance)
 - [ ] **Anti-patterns vérifiés** : pas de validation frontend seule, gestion d'erreurs appropriée
+- [ ] **🔍 Vérification critique du code IA** : logique métier, sécurité, edge cases testés
 
 ### Avant chaque Pull Request :
 - [ ] **Analyse sécurité Copilot** : vulnérabilités identifiées et corrigées
@@ -833,6 +968,8 @@ npx copilot-cli review --security --performance ./src
 - [ ] **Analyse tests Copilot** : couverture et edge cases validés
 - [ ] **Analyse architecture Copilot** : design patterns respectés
 - [ ] **Vérification anti-patterns** : stores sécurisés, requêtes optimisées, tests déterministes
+- [ ] **⚠️ Auto-critique IA** : code généré re-analysé pour biais et erreurs subtiles
+- [ ] **🛡️ Tests contradictoires** : edge cases et tentatives d'attaque implémentés
 - [ ] Template PR complété avec prompts utilisés
 - [ ] Breaking changes documentés
 
@@ -845,9 +982,10 @@ npx copilot-cli review --security --performance ./src
 - [ ] Monitoring et logging activés
 - [ ] **Code review final Copilot** sur la branche de production
 - [ ] **Audit sécurité final** : pas de données sensibles en localStorage, Security Rules strictes
+- [ ] **🔍 Vérification finale anti-biais** : logique business validée par des humains
 
 ---
 
-**Version** : 2.1 (Septembre 2025)
-**Dernière mise à jour** : Intégration TDD + Validations de sécurité + Anti-Patterns
+**Version** : 2.2 (Septembre 2025)
+**Dernière mise à jour** : Intégration TDD + Validations de sécurité + Anti-Patterns + **Gestion des Biais IA**
 **Prochaine révision** : Phase 6 - Optimisations avancées
